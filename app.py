@@ -95,7 +95,7 @@ ITEMS = [
        "동네 폐의류 수거함 위치는 구청·주민센터에 확인하세요."),
     _i("못 입는 옷·헌가방·베개", "헌가방,낡은 옷,베개,걸레,양말,속옷,젖은 옷,더러운 옷", "red", "일반", "재활용이 안 되는 옷은 종량제예요",
        ["심하게 낡거나 더러워 재활용이 안 되는 옷·신발·가방은 종량제예요", "베개도 종량제예요"]),
-    _i("솜이불·쿠션", "솜이불,이불,쿠션,방석,인형,토퍼,담요,침구", "red", "대형", "솜이불·쿠션은 대형폐기물이에요",
+    _i("솜이불·쿠션", "솜이불,이불,쿠션,인형,토퍼,담요,침구", "red", "대형", "솜이불·쿠션은 대형폐기물이에요",
        ["솜이 든 이불·쿠션은 대형폐기물 신고 대상이에요", "구청·주민센터나 온라인으로 신고하고 수수료 스티커를 붙여요", "방석처럼 작은 것은 종량제인 지역도 있어요"], ["📄 신고·수수료"]),
     # ── 종이 ──
     _i("택배상자(골판지)", "택배박스,종이박스,박스,상자,골판지,택배상자", "yellow", "재활용", "테이프 떼고 납작하게 펴서 내놓으세요",
@@ -104,7 +104,7 @@ ITEMS = [
        ["종이와 분리되지 않는 보냉 상자는 종량제예요", "스티로폼 상자가 깨끗하면 스티로폼으로 내놓아요"]),
     _i("종이컵", "종이컵,일회용컵,커피컵,컵", "yellow", "재활용", "비우고 헹궈서 눌러 내놓으세요",
        ["내용물을 비우고 헹궈요", "눌러서 봉투에 모으거나 묶어요", "양면이 코팅된 종이컵은 종량제예요"]),
-    _i("영수증·택배 전표", "영수증,감열지,전표,택배전표,송장,계산서", "red", "일반", "종이처럼 보여도 종량제예요",
+    _i("영수증·택배 전표", "영수증,감열지,전표,택배전표,송장,계산서,택배 송장", "red", "일반", "종이처럼 보여도 종량제예요",
        ["코팅된 감열지라 종이류 재활용이 안 돼요", "개인정보가 있으면 찢어서 버려요"]),
     _i("사진·종이호일·휴지", "사진,사진용지,종이호일,기름종이,휴지,화장지,사용한 휴지,색지,키친타월,물티슈", "red", "일반", "종이 같아도 종량제예요",
        ["사진용지·종이호일·색지·사용한 휴지는 재활용이 안 돼요", "종량제 봉투에 넣어요"]),
@@ -168,6 +168,35 @@ ITEMS = [
        ["딱딱한 뼈는 음식물 쓰레기가 아니에요", "종량제 봉투에 넣어요"]),
     _i("껍데기·씨앗", "달걀껍질,계란껍질,달걀 껍데기,조개껍데기,어패류,굴껍데기,복숭아씨,호두,밤껍질,과일씨,양파껍질,파뿌리,뿌리,티백,복어내장,옥수수껍질", "red", "일반", "음식물 같아도 종량제예요",
        ["달걀·메추리알 껍질, 조개 등 어패류 껍데기는 종량제예요", "복숭아·호두 같은 딱딱한 껍데기와 씨, 양파 껍질, 채소 뿌리도 종량제예요", "티백, 복어 내장도 종량제예요"]),
+    # ── 추가: 생활 속 헷갈리는 것들 ──
+    _i("가발·걸레·골프공", "가발,걸레,골프공,야구공,공,마우스패드,양초,초,촛농,수세미,스펀지", "red", "일반", "재활용이 안 돼요. 종량제로 버리세요",
+       ["가발·걸레·골프공·야구공·마우스패드·양초는 종량제예요(부산 북구 안내)", "종량제 봉투에 넣어요"]),
+    _i("방석", "방석,의자 방석,좌식 방석", "red", "일반", "방석은 종량제예요(지역에 따라 대형)",
+       ["부산 북구 안내는 종량제예요", "솜이 많은 큰 쿠션류는 대형폐기물인 곳도 있어요", "동네 기준을 확인하세요"]),
+    _i("랩·휴지 심", "랩심,랩 심,랩의 심,호일심,키친타월심", "green", "재활용", "속 심지는 종이류로 내놓으세요",
+       ["랩 자체는 종량제지만 안의 종이 심은 종이류예요", "납작하게 펴서 종이류에 넣어요"]),
+    _i("볼풀공", "볼풀공,볼풀,플라스틱 공", "yellow", "재활용", "플라스틱으로 내놓으세요(부산 북구 안내)",
+       ["깨끗이 털어서 플라스틱류로 내놓아요", "동네 기준을 확인하세요"]),
+    _i("실리콘·머리빗·욕실화", "실리콘,실리콘 주걱,주걱,머리빗,빗,욕실화,욕실 슬리퍼,욕실신발,고무밴드", "red", "일반", "재활용이 안 돼요. 종량제예요",
+       ["실리콘 주방도구·머리빗·욕실 신발은 종량제예요(광진구 안내)", "종량제 봉투에 넣어요"]),
+    _i("남은 화장품 용기", "화장품,화장품 용기 남은 것,크림통,립스틱,파운데이션,매니큐어", "red", "일반", "내용물이 남아 분리 어려우면 종량제예요",
+       ["내용물이 남아 있고 분리가 어려우면 종량제예요(광진구 안내)", "내용물을 비워 씻을 수 있으면 플라스틱·유리로 내놓아요"]),
+    _i("파쇄지", "파쇄지,세단기,세단 종이,갈아버린 종이,종이 파쇄", "red", "일반", "잘게 파쇄한 종이는 종량제예요",
+       ["파쇄지는 종이류 재활용이 안 돼요(광진구 안내)", "종량제 봉투에 넣어요"]),
+    _i("벽돌·타일·깨진 화분", "벽돌,타일,깨진 화분,시멘트,콘크리트,석고,돌", "red", "불연성", "특수규격마대로 버리세요",
+       ["벽돌·타일·깨진 화분은 불연성이라 특수마대예요(광진구 안내)", "많으면 공사 폐기물 기준을 구청에 확인해요"]),
+    _i("단열재·소량 목재", "단열재,목재,나무,나무 조각,합판,각목,벽지,벽지 조각,장판 조각", "red", "불연성", "소량은 특수규격마대예요",
+       ["단열재·소량의 목재·벽지·장판 조각은 특수마대예요(광진구 안내)", "건축용 단열 스티로폼과 많은 양은 대형폐기물이에요"]),
+    _i("멀티탭·콘센트", "멀티탭,콘센트,전선,연장선,전기선", "red", "불연성", "소량은 특수규격마대예요(광진구 안내)",
+       ["멀티탭은 소량이면 특수마대예요", "동네 기준을 확인하세요"]),
+    _i("가죽 제품", "가죽,가죽 지갑,가죽신발,가죽 소파,인조가죽,레자", "red", "불연성", "가죽은 특수규격마대예요(광진구 안내)",
+       ["가죽 제품은 특수마대로 안내하는 구가 있어요", "큰 가죽 가구는 대형폐기물 기준을 확인해요"]),
+    _i("공기청정기 필터", "공기청정기 필터,필터,헤파필터,정수기 필터,에어컨 필터", "red", "불연성", "특수규격마대예요(광진구 안내)",
+       ["공기청정기 필터는 특수마대로 안내하는 구가 있어요", "동네 기준을 확인하세요"]),
+    _i("욕실의자·폼롤러", "욕실의자,폼롤러,플라스틱 의자,큰 플라스틱,어린이 의자,빨래건조대", "red", "대형", "부피 큰 플라스틱은 대형폐기물이에요",
+       ["아기욕조·욕실의자·폼롤러처럼 부피 큰 플라스틱은 대형폐기물이에요(광진구 안내)", "신고 후 스티커를 붙여 내놓아요"], ["📄 신고·수수료"]),
+    _i("먹다 남은 생선·상한 음식", "먹다남은 생선,상한음식,상한 음식,썩은 음식,유통기한 지난 음식,생선살,김치", "yellow", "음식물", "물기 빼서 음식물로 버리세요",
+       ["살코기·상한 음식은 음식물이에요(부산 북구 안내)", "생선 뼈는 종량제예요"], ["🍚 음식물"]),
 ]
 ITEM_BY_NAME = {it["name"]: it for it in ITEMS}
 QUICK_CHIPS = ["프라이팬·냄비", "영수증·택배 전표", "깨끗한 헌옷·신발", "우산", "깨진 유리", "종이컵", "보조배터리", "칫솔·옷걸이·CD", "껍데기·씨앗", "스티로폼 접시·과일망", "폐의약품", "소형가전"]
@@ -187,9 +216,10 @@ AREAS = {
 }
 CUSTOM_AREA = "직접 입력"
 KIND_KEY = {"재활용": "rec", "일반": "gen", "음식물": "food"}
+KIND_PLAIN = {"rec": "재활용", "gen": "일반쓰레기", "food": "음식물"}
 KIND_LABEL = {"rec": "♻️ 재활용", "gen": "🗑️ 일반(종량제)", "food": "🍚 음식물"}
 
-PAGES = {"cover": "🏠 표지", "find": "🔍 판독", "area": "🏘️ 동네·QR"}  # 화면은 딱 3개
+PAGES = {"cover": "🏠 표지", "area": "🏘️ 우리 동네 배출일정", "find": "🔍 물건 검색"}  # 화면은 딱 3개
 
 
 # ──────────────────────────────────────────────────────────────
@@ -300,7 +330,7 @@ def drop_status(k: str, now: datetime):
     s = get_sched(k)
     days = {WEEK.index(d) for d in s["days"]}
     if not days:
-        return "warn", "우리 동네 배출 요일이 아직 비어 있어요. '동네·QR' 화면에서 입력해 주세요."
+        return "warn", "우리 동네 배출 요일이 아직 비어 있어요. '우리 동네 배출일정' 화면에서 입력해 주세요."
     place = s["place"] or "정해진 배출 장소"
     rng = f"{s['start']:%H:%M}~{s['end']:%H:%M}"
     today, t = now.weekday(), now.time()
@@ -356,7 +386,9 @@ def make_qr_png(url: str) -> bytes:
 # 4. 디자인 (CSS)
 # ──────────────────────────────────────────────────────────────
 def inject_css(big: bool, cover: bool) -> None:
-    root = "22px" if big else "19px"  # 기본부터 큼직하게, '더 크게'를 켜면 한 단계 더
+    root = "19px"
+    zoom = "1.35" if big else "1"  # '글자 더 크게'를 켜면 화면 전체가 1.35배로 커져요
+    title_fs = "min(16.9vw,115px)" if big else "min(19vw,112px)"
     bg = (
         "linear-gradient(180deg,#eaf7ee 0%,#f8fcf9 55%,#ffffff 100%)"
         if cover
@@ -367,7 +399,7 @@ def inject_css(big: bool, cover: bool) -> None:
 html{{font-size:{root} !important;}}
 #MainMenu,footer,header[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"]{{display:none !important;}}
 .stApp{{background:{bg} !important;color:#1f2937 !important;}}
-.block-container{{max-width:620px;padding:1.2rem 1.1rem 3rem 1.1rem;}}
+.block-container{{max-width:620px;padding:1.2rem 1.1rem 3rem 1.1rem;zoom:{zoom};}}
 .stApp [data-testid="stMarkdownContainer"] p,.stApp [data-testid="stMarkdownContainer"] li,
 .stApp [data-testid="stCaptionContainer"],.stApp label,.stApp h1,.stApp h2,.stApp h3{{color:#1f2937;}}
 
@@ -405,10 +437,10 @@ html{{font-size:{root} !important;}}
 .lgdot{{width:30px;height:30px;border-radius:50%;flex:none;}}
 
 /* 표지 */
-.cover-pre{{text-align:center;color:#2e9e4f;font-weight:800;font-size:1.3rem;margin-top:13vh;letter-spacing:.01em;}}
-.st-key-start{{display:flex;justify-content:center;}}
+.cover-pre{{text-align:center;color:#2e9e4f;font-weight:800;font-size:1.3rem;margin-top:20vh;letter-spacing:.01em;}}
+.st-key-start,.st-key-start [data-testid="stButton"],.st-key-start [data-testid="stElementContainer"]{{display:flex;justify-content:center;align-items:center;width:100%;text-align:center;}}
 .stApp .st-key-start button{{background:transparent !important;border:none !important;box-shadow:none !important;padding:.2rem .4rem !important;min-height:0 !important;width:auto !important;}}
-.stApp .st-key-start button p{{font-size:min(19vw,112px) !important;font-weight:900 !important;color:#14532d !important;letter-spacing:-.04em !important;line-height:1.15 !important;white-space:nowrap !important;}}
+.stApp .st-key-start button p{{font-size:{title_fs} !important;font-weight:900 !important;color:#14532d !important;letter-spacing:-.04em !important;line-height:1.15 !important;white-space:nowrap !important;}}
 .stApp .st-key-start button:hover p,.stApp .st-key-start button:active p,.stApp .st-key-start button:focus p{{color:#2e9e4f !important;}}
 .stApp .st-key-start button:hover,.stApp .st-key-start button:active,.stApp .st-key-start button:focus{{background:transparent !important;border:none !important;box-shadow:none !important;}}
 .cover-hint{{text-align:center;color:#4b5563;font-size:1.25rem;font-weight:700;margin-top:.2rem;animation:nudge 1.8s ease-in-out infinite;}}
@@ -509,7 +541,7 @@ def render_nav(page: str) -> None:
 # ──────────────────────────────────────────────────────────────
 def screen_cover() -> None:
     st.markdown('<div class="cover-pre">이거 어떻게 버려요?</div>', unsafe_allow_html=True)
-    st.button("분리배출", key="start", on_click=go, args=("find",))  # 글자 자체가 버튼
+    st.button("분리배출", key="start", on_click=go, args=("area",))  # 글자 자체가 버튼
     st.markdown(
         '<div class="cover-hint">👆 글자를 눌러 시작하세요</div>'
         '<div class="cover-sub">물건 이름만 치면<br>신호등 색으로 알려드려요</div>'
@@ -565,7 +597,8 @@ def screen_find(now: datetime) -> None:
 
 def screen_area() -> None:
     render_nav("area")
-    st.markdown('<div class="page-title">우리 동네 · QR</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">우리 동네 배출 일정</div>', unsafe_allow_html=True)
+    st.button("🔍 이거 어떻게 버려요? 물건 검색하기", key="to_find", on_click=go, args=("find",), use_container_width=True)
 
     # ── 우리 동네 ──
     with st.container(border=True):
@@ -577,8 +610,8 @@ def screen_area() -> None:
             unsafe_allow_html=True,
         )
         for k in ("rec", "gen", "food"):
-            with st.expander(f"✏️ {KIND_LABEL[k]} 수정"):  # 라벨을 고정해야 수정 중에 접히지 않아요
-                st.multiselect("배출 요일", WEEK, key=f"{k}_days")
+            with st.expander(f"📅 {KIND_PLAIN[k]} 날짜 선택하기"):  # 라벨을 고정해야 수정 중에 접히지 않아요
+                st.multiselect("날짜(요일) 선택하기", WEEK, key=f"{k}_days")
                 c1, c2 = st.columns(2)
                 c1.time_input("시작", key=f"{k}_s", step=900)
                 c2.time_input("종료", key=f"{k}_e", step=900)
