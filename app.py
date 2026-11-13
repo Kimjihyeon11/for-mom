@@ -614,7 +614,6 @@ def inject_css(big: bool, cover: bool) -> None:
     )
     st.markdown(
         f"""<style>
-@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap');
 html{{font-size:{root} !important;}}
 #MainMenu,footer,header[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"]{{display:none !important;}}
 .stApp{{background:{bg} !important;color:#1f2937 !important;}}
@@ -622,11 +621,6 @@ html{{font-size:{root} !important;}}
 .stApp [data-testid="stMarkdownContainer"] p,.stApp [data-testid="stMarkdownContainer"] li,
 .stApp [data-testid="stCaptionContainer"],.stApp label,.stApp h1,.stApp h2,.stApp h3{{color:#1f2937;}}
 
-/* 글씨체: 본문 고운돋움, 제목·버튼·예시 문구 주아 (아이콘 글꼴은 건드리지 않음) */
-.stApp,.stApp p,.stApp li,.stApp label,.stApp input,.stApp textarea,.stApp button,.stApp [data-baseweb="select"] div,.stApp [data-testid="stCaptionContainer"]{{font-family:'Gowun Dodum','Noto Sans KR',sans-serif !important;}}
-.page-title,.sec-title,.day-title,.sig-head,.sig-label,.steps-title,.cover-pre,.cover-hint,.cover-sub,.badge,.lg,.stButton button p,.stApp .st-key-start button p{{font-family:'Jua','Gowun Dodum',sans-serif !important;font-weight:400;}}
-.stTextInput input::placeholder,.stTextArea textarea::placeholder{{font-family:'Jua','Gowun Dodum',sans-serif !important;font-size:1.15rem !important;color:#6f8f7b !important;opacity:1 !important;letter-spacing:.01em;}}
-.stTextInput input{{font-family:'Jua','Gowun Dodum',sans-serif !important;}}
 
 /* 일반 버튼 */
 .stButton>button,.stDownloadButton>button,.stLinkButton>a{{border-radius:16px;border:2px solid #cfe3d6;background:#fff;padding:.6rem 1.1rem;}}
