@@ -3,7 +3,7 @@
 ♻️ 분리배출 — 이거 어떻게 버려요? (Streamlit · QR 접속형)
 
 화면은 딱 3개 (표지 포함):
-  1) 표지      : 큰 글씨 '분리배출' — 글자를 누르면 다음 화면으로
+  1) 표지      : 큰 글씨 '분리배출' — 글자를 누르면 다음 화면으로 (사진 인식은 GEMINI_API_KEY 또는 OPENAI_API_KEY 필요)
   2) 판독      : 물건 이름 → 🟢🟡🔴⚪ 신호등 + "지금 내놔도 돼요?"
   3) 동네·QR   : 우리 동네 배출 일정 설정 + 앱 접속용 QR 만들기
 
@@ -12,7 +12,10 @@
 """
 from __future__ import annotations
 
+import base64
 import difflib
+import hashlib
+import json
 import html
 import os
 from datetime import datetime, time as dtime, timedelta, timezone
@@ -20,6 +23,8 @@ from io import BytesIO
 from urllib.parse import quote, urlencode
 
 import qrcode
+import requests
+from PIL import Image
 import streamlit as st
 from qrcode.constants import ERROR_CORRECT_M
 
@@ -329,15 +334,15 @@ KIND_KEY = {"재활용": "rec", "일반": "gen", "음식물": "food"}
 KIND_PLAIN = {"rec": "재활용", "gen": "일반쓰레기", "food": "음식물"}
 KIND_LABEL = {"rec": "♻️ 재활용", "gen": "🗑️ 일반(종량제)", "food": "🍚 음식물"}
 
-PAGES = {"cover": "🏠 표지", "area": "🏘️ 우리 동네 배출일정", "find": "🔍 물건 검색"}  # 화면은 딱 3개
+PAGES = {"area": "🏘️ 우리 동네", "find": "🔍 물건 검색", "qr": "📲 QR"}  # 화면은 딱 3개
 
 
 # ──────────────────────────────────────────────────────────────
 # 2. 상태 관리
 #    화면을 바꾸면 안 보이는 위젯의 값이 사라지므로, 매번 값을 다시 저장해 둡니다.
 # ──────────────────────────────────────────────────────────────
-PERSIST = ["query", "memo", "area", "big", "app_url", "include_area"] + [
-    f"{k}_{s}" for k in ("rec", "gen", "food") for s in ("days", "s", "e", "p")
+PERSIST = ["use_cam", "query", "memo", "area", "big", "app_url", "include_area"] + [
+    f"{k}_{s}" for k in ("rec", "gen", "food") for s in ("days", "s", "e", "p", "tp")
 ]
 for _k in PERSIST:
     if _k in st.session_state:
@@ -353,6 +358,23 @@ def apply_preset(name: str) -> None:
         st.session_state[f"{k}_s"] = start
         st.session_state[f"{k}_e"] = end
         st.session_state[f"{k}_p"] = place
+
+
+SAME = "샘플 시간 그대로"
+TIME_PRESETS = {
+    "아침 06:00~10:00": (dtime(6, 0), dtime(10, 0)),
+    "낮 10:00~18:00": (dtime(10, 0), dtime(18, 0)),
+    "저녁 18:00~23:00": (dtime(18, 0), dtime(23, 0)),
+    "하루 종일": (dtime(0, 0), dtime(23, 59)),
+}
+
+
+def on_time_pick(k: str):
+    def _cb() -> None:
+        v = st.session_state.get(f"{k}_tp")
+        if v in TIME_PRESETS:
+            st.session_state[f"{k}_s"], st.session_state[f"{k}_e"] = TIME_PRESETS[v]
+    return _cb
 
 
 def on_area_change() -> None:
@@ -451,6 +473,71 @@ def fallback_guess(query: str):
     return None
 
 
+def _secret(name: str, default: str = "") -> str:
+    v = os.environ.get(name, "")
+    if not v:
+        try:
+            v = str(st.secrets.get(name, ""))
+        except Exception:
+            v = ""
+    return v or default
+
+
+def _shrink(data: bytes) -> bytes:
+    img = Image.open(BytesIO(data)).convert("RGB")
+    img.thumbnail((1024, 1024))
+    buf = BytesIO()
+    img.save(buf, format="JPEG", quality=85)
+    return buf.getvalue()
+
+
+def recognize(data: bytes):
+    """사진 속 물건 이름(최대 3개)을 AI로 알아내요. 반환: (이름 목록, 오류 문구)"""
+    gem, oai = _secret("GEMINI_API_KEY"), _secret("OPENAI_API_KEY")
+    if not (gem or oai):
+        return [], "NOKEY"
+    try:
+        jpg = _shrink(data)
+    except Exception:
+        return [], "사진을 읽을 수 없어요. 다른 사진으로 해보세요."
+    b64 = base64.b64encode(jpg).decode()
+    known = ", ".join(it["name"] for it in ITEMS)
+    prompt = (
+        "사진에서 버리려는 물건의 한국어 이름을 알려줘. 물건이 여러 개면 가장 눈에 띄는 것부터 최대 3개.\n"
+        "아래 목록에 비슷한 것이 있으면 그 이름을 그대로 쓰고, 없으면 흔히 쓰는 짧은 한국어 이름(1~3단어)을 써.\n"
+        "버리는 방법은 말하지 말고, 이름만 쉼표로 구분해서 한 줄로 답해. 물건이 안 보이면 '없음'이라고만 답해.\n"
+        f"목록: {known}"
+    )
+    try:
+        if gem:
+            model = _secret("GEMINI_MODEL", "gemini-2.5-flash")
+            r = requests.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                headers={"x-goog-api-key": gem, "Content-Type": "application/json"},
+                json={"contents": [{"parts": [{"text": prompt}, {"inline_data": {"mime_type": "image/jpeg", "data": b64}}]}]},
+                timeout=40,
+            )
+            r.raise_for_status()
+            text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
+        else:
+            model = _secret("OPENAI_MODEL", "gpt-4o-mini")
+            r = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={"Authorization": f"Bearer {oai}"},
+                json={"model": model, "max_tokens": 80, "messages": [{"role": "user", "content": [
+                    {"type": "text", "text": prompt},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}}]}]},
+                timeout=40,
+            )
+            r.raise_for_status()
+            text = r.json()["choices"][0]["message"]["content"]
+    except Exception as e:  # 키 오류, 모델명 오류, 네트워크 등
+        return [], f"사진 인식 요청이 실패했어요. ({type(e).__name__}) 잠시 뒤 다시 해보거나 글자로 검색해 주세요."
+    names = [n.strip(" .\n\t'\"") for n in text.replace("、", ",").replace("\n", ",").split(",")]
+    names = [n for n in names if n and len(n) <= 20 and n != "없음"][:3]
+    return (names, "") if names else ([], "물건을 알아보지 못했어요. 가까이서 다시 찍어 주세요.")
+
+
 def get_sched(k: str) -> dict:
     ss = st.session_state
     return {"days": ss[f"{k}_days"], "start": ss[f"{k}_s"], "end": ss[f"{k}_e"], "place": ss[f"{k}_p"]}
@@ -527,12 +614,19 @@ def inject_css(big: bool, cover: bool) -> None:
     )
     st.markdown(
         f"""<style>
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap');
 html{{font-size:{root} !important;}}
 #MainMenu,footer,header[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"]{{display:none !important;}}
 .stApp{{background:{bg} !important;color:#1f2937 !important;}}
 .block-container{{max-width:620px;padding:1.2rem 1.1rem 3rem 1.1rem;zoom:{zoom};}}
 .stApp [data-testid="stMarkdownContainer"] p,.stApp [data-testid="stMarkdownContainer"] li,
 .stApp [data-testid="stCaptionContainer"],.stApp label,.stApp h1,.stApp h2,.stApp h3{{color:#1f2937;}}
+
+/* 글씨체: 본문 고운돋움, 제목·버튼·예시 문구 주아 (아이콘 글꼴은 건드리지 않음) */
+.stApp,.stApp p,.stApp li,.stApp label,.stApp input,.stApp textarea,.stApp button,.stApp [data-baseweb="select"] div,.stApp [data-testid="stCaptionContainer"]{{font-family:'Gowun Dodum','Noto Sans KR',sans-serif !important;}}
+.page-title,.sec-title,.day-title,.sig-head,.sig-label,.steps-title,.cover-pre,.cover-hint,.cover-sub,.badge,.lg,.stButton button p,.stApp .st-key-start button p{{font-family:'Jua','Gowun Dodum',sans-serif !important;font-weight:400;}}
+.stTextInput input::placeholder,.stTextArea textarea::placeholder{{font-family:'Jua','Gowun Dodum',sans-serif !important;font-size:1.15rem !important;color:#6f8f7b !important;opacity:1 !important;letter-spacing:.01em;}}
+.stTextInput input{{font-family:'Jua','Gowun Dodum',sans-serif !important;}}
 
 /* 일반 버튼 */
 .stButton>button,.stDownloadButton>button,.stLinkButton>a{{border-radius:16px;border:2px solid #cfe3d6;background:#fff;padding:.6rem 1.1rem;}}
@@ -655,6 +749,41 @@ def render_unknown(query: str) -> None:
     st.link_button("🔎 인터넷에서 찾아보기", f"https://search.naver.com/search.naver?query={quote(query + ' 분리배출')}")
 
 
+def render_photo_box(now: datetime) -> None:
+    with st.expander("📷 사진으로 찾기", expanded=True):
+        st.markdown('<div class="step">물건을 찍거나 사진을 올리면 AI가 이름을 알아내서 어디에 버리는지 알려드려요.</div>', unsafe_allow_html=True)
+        cam = st.toggle("카메라로 바로 찍기", key="use_cam")
+        if cam:
+            img = st.camera_input("물건 찍기", label_visibility="collapsed")
+        else:
+            img = st.file_uploader("사진 올리기", type=["jpg", "jpeg", "png", "webp"], label_visibility="collapsed", key="photo_up")
+        if img is not None:
+            data = img.getvalue()
+            h = hashlib.md5(data).hexdigest()
+            if st.session_state.get("photo_hash") != h:
+                with st.spinner("무엇인지 살펴보는 중이에요..."):
+                    names, err = recognize(data)
+                st.session_state.update(photo_hash=h, photo_names=names, photo_err=err)
+        st.caption("사진은 저장하지 않지만, 인식을 위해 AI 서비스(Google 또는 OpenAI)로 전송돼요. 얼굴·주소·송장이 나오지 않게 찍어 주세요.")
+    err = st.session_state.get("photo_err", "")
+    if err == "NOKEY":
+        st.markdown('<div class="drop info">사진 인식은 AI 키를 설정하면 켜져요. Streamlit 앱 설정 → Secrets에 <b>GEMINI_API_KEY</b> 또는 <b>OPENAI_API_KEY</b>를 넣어 주세요. 그 전에는 글자로 검색해 주세요.</div>', unsafe_allow_html=True)
+    elif err:
+        st.markdown(f'<div class="drop warn">{html.escape(err)}</div>', unsafe_allow_html=True)
+    names = st.session_state.get("photo_names", [])
+    if names:
+        st.markdown('<div class="sec-title">📷 사진 인식 결과</div>', unsafe_allow_html=True)
+        for n in names:
+            results, _mode = search(n)
+            st.markdown(f'<div class="step">AI가 본 물건: <b>{html.escape(n)}</b></div>', unsafe_allow_html=True)
+            if results:
+                render_result(results[0], now)
+            else:
+                render_unknown(n)
+        st.caption("AI가 물건을 잘못 알아볼 수 있어요. 이름이 다르면 위 검색창에 직접 입력해 주세요.")
+        st.button("🧹 사진 결과 지우기", key="clear_photo", on_click=lambda: st.session_state.update(photo_names=[], photo_err=""))
+
+
 def render_legend() -> None:
     rows = "".join(
         f'<div class="lg"><span class="lgdot" style="background:{SIGNAL[k][2]}"></span>{html.escape(t)}</div>'
@@ -696,6 +825,7 @@ def screen_find(now: datetime) -> None:
     st.text_input(
         "물건 이름", key="query", placeholder="예) 치킨 뼈, 페트병, 소파", label_visibility="collapsed"
     )
+    render_photo_box(now)
     query = st.session_state["query"].strip()
 
     if not query:
@@ -746,23 +876,26 @@ def screen_area() -> None:
                 f"{KIND_PLAIN[k]} 요일", WEEK, selection_mode="multi", key=f"{k}_days",
                 label_visibility="collapsed",
             )
-        with st.expander("🕗 시간과 장소도 정하기 (선택)"):
-            for k in ("rec", "gen", "food"):
-                st.markdown(f'<div class="day-title">{KIND_PLAIN[k]}</div>', unsafe_allow_html=True)
-                c1, c2 = st.columns(2)
-                c1.time_input("시작", key=f"{k}_s", step=900)
-                c2.time_input("종료", key=f"{k}_e", step=900)
-                st.text_input("장소", key=f"{k}_p", placeholder="예) 101동 앞")
-                if st.session_state[f"{k}_e"] <= st.session_state[f"{k}_s"]:
-                    st.warning("종료 시간이 시작보다 늦어야 해요.")
-            st.text_area("📝 메모 (예: 102동은 지하 1층)", key="memo", height=80)
+        st.markdown('<div class="sec-title" style="margin-top:.6rem">③ 몇 시에, 어디에?</div>', unsafe_allow_html=True)
+        for k in ("rec", "gen", "food"):
+            st.markdown(f'<div class="day-title">{KIND_PLAIN[k]}</div>', unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
+            c1.selectbox("시간", [SAME, *TIME_PRESETS], key=f"{k}_tp", on_change=on_time_pick(k))
+            c2.text_input("장소", key=f"{k}_p", placeholder="예) 101동 앞")
         st.markdown(
             "".join(f'<div class="step">{html.escape(sched_summary(k))}</div>' for k in ("rec", "gen", "food")),
             unsafe_allow_html=True,
         )
         st.caption("샘플 동네는 예시예요. 우리 동네 요일로 눌러 고치세요. 새로고침하면 처음 값으로 돌아가요.")
 
-    # ── QR ──
+    with st.container(key="size_toggle"):
+        st.toggle("글자 더 크게", key="big")
+    footer()
+
+
+def screen_qr() -> None:
+    render_nav("qr")
+    st.markdown('<div class="page-title">QR로<br>앱 열기</div>', unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown('<div class="sec-title">📲 QR로 앱 열기</div>', unsafe_allow_html=True)
         st.markdown(
@@ -816,5 +949,7 @@ if page == "cover":
     screen_cover()
 elif page == "find":
     screen_find(now)
+elif page == "qr":
+    screen_qr()
 else:
     screen_area()
